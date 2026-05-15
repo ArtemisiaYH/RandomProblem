@@ -29,10 +29,10 @@ async def on_ready():
 async def all(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get(PROBLEMS_API) as resp:
-            problems = await resp.json()
+            problems = await resp.json() #サイトへのアクセスを一回で済ませる
     problem = random.choice(problems)
     contest_id = problem["contest_id"]  
-    problem_id = problem["id"]          
+    problem_id = problem["id"]
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
     await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
