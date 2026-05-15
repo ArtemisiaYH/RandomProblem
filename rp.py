@@ -4,6 +4,11 @@ import random
 import aiohttp
 from dotenv import load_dotenv
 import os
+import json
+
+with open("aa.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+aa_list = data["aa"]
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -29,7 +34,7 @@ async def all(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]          
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc(ctx):
@@ -41,7 +46,7 @@ async def abc(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc(ctx):
@@ -53,7 +58,7 @@ async def arc(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc(ctx):
@@ -65,7 +70,7 @@ async def agc(ctx):
     contest_id = problem["contest_id"]
     problem_id = problem["id"]          
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 #abcのa問題とか個別
 @bot.command()
@@ -80,7 +85,7 @@ async def abc_a(ctx):
     contest_id = problem["contest_id"] 
     problem_id = problem["id"]         
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_b(ctx):
@@ -94,7 +99,7 @@ async def abc_b(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]      
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_c(ctx):
@@ -108,7 +113,7 @@ async def abc_c(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]          
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_d(ctx):
@@ -122,7 +127,7 @@ async def abc_d(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]         
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_e(ctx):
@@ -134,7 +139,7 @@ async def abc_e(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]         
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_f(ctx):
@@ -146,7 +151,7 @@ async def abc_f(ctx):
     contest_id = problem["contest_id"] 
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_g(ctx):
@@ -158,7 +163,7 @@ async def abc_g(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]         
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def abc_h(ctx):
@@ -170,7 +175,7 @@ async def abc_h(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]         
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 #arcのa問題とか個別
 @bot.command()
@@ -185,7 +190,7 @@ async def arc_a(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]  
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_b(ctx):
@@ -199,7 +204,7 @@ async def arc_b(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]           
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_c(ctx):
@@ -213,7 +218,7 @@ async def arc_c(ctx):
     contest_id = problem["contest_id"] 
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_d(ctx):
@@ -227,7 +232,7 @@ async def arc_d(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_e(ctx):
@@ -239,7 +244,7 @@ async def arc_e(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]        
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_f(ctx):
@@ -251,7 +256,7 @@ async def arc_f(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]          
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_f2(ctx):
@@ -263,7 +268,7 @@ async def arc_f2(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]           
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def arc_g(ctx):
@@ -275,7 +280,7 @@ async def arc_g(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]           
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 #agcのa問題とか個別
 @bot.command()
@@ -288,7 +293,7 @@ async def agc_a(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]  
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_b(ctx):
@@ -300,7 +305,7 @@ async def agc_b(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]           
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_c(ctx):
@@ -312,7 +317,7 @@ async def agc_c(ctx):
     contest_id = problem["contest_id"] 
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_d(ctx):
@@ -324,7 +329,7 @@ async def agc_d(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]       
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_e(ctx):
@@ -336,7 +341,7 @@ async def agc_e(ctx):
     contest_id = problem["contest_id"]  
     problem_id = problem["id"]        
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_f(ctx):
@@ -348,7 +353,7 @@ async def agc_f(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]          
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 @bot.command()
 async def agc_f2(ctx):
@@ -360,6 +365,6 @@ async def agc_f2(ctx):
     contest_id = problem["contest_id"]   
     problem_id = problem["id"]           
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
-    await ctx.send(f"今日の問題: **{problem['title']}**\n{url}")
+    await ctx.send(f"解けるかな {random.choice(aa_list)}{random.choice(aa_list)}: **{problem['title']}**\n{url}")
 
 bot.run(TOKEN)
