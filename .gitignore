@@ -1,5 +1,4 @@
 .env
-aa.json
 __pycache__/
 *.pyc
 *.pyo
