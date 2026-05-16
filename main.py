@@ -18,6 +18,7 @@ bot = commands.Bot(command_prefix=PREFIX,intents=intents)
 @bot.event
 async def on_ready():
     await bot.load_extension("cogs.problem")
+    await bot.load_extension("cogs.user")
     await bot.tree.sync()
     print(f'Logged in as {bot.user.name}')
     print(f'登録済みコマンド: {[c.name for c in bot.tree.get_commands()]}')
