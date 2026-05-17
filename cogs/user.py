@@ -77,7 +77,7 @@ def fetch_all_submissions(atcoder_id: str) -> list:
 # ===========================
 class UserGroup(app_commands.Group):
     def __init__(self):
-        super().__init__(name="user", description="AtCoder関連コマンド")
+        super().__init__(name="user", description="アカウント関連コマンド")
         self.add_command(WAGroup())
 
     async def get_saved_id(self, interaction: discord.Interaction) -> str | None:
@@ -107,7 +107,7 @@ class UserGroup(app_commands.Group):
             )
         else:
             await interaction.response.send_message(
-                "初回は `/user ac お前のAtCoderユーザー名` で登録してくれ。"
+                "初回は `/user ac キミのAtCoderユーザー名` で登録してくれ。"
             )
 
 #提出した問題全て
@@ -124,7 +124,7 @@ class UserGroup(app_commands.Group):
 
         if not submissions:
             await interaction.edit_original_response(
-                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+                content=f"`{saved_id}` の提出が見つからなかった。キミのユーザー名を確認してくれ。"
             )
             return
 
@@ -160,7 +160,7 @@ class UserGroup(app_commands.Group):
 
         if not submissions:
             await interaction.edit_original_response(
-                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+                content=f"`{saved_id}` の提出が見つからなかった。キミのユーザー名を確認してくれ。"
             )
             return
 
@@ -195,7 +195,7 @@ class WAGroup(app_commands.Group):
         saved_id = get_atcoder_id(str(interaction.user.id))
         if not saved_id:
             await interaction.response.send_message(
-                "先に `/user register お前のAtCoderユーザー名` で登録してくれ。"
+                "先に `/user register キミのAtCoderユーザー名` で登録してくれ。"
             )
         return saved_id
 
@@ -212,7 +212,7 @@ class WAGroup(app_commands.Group):
 
         if not submissions:
             await interaction.edit_original_response(
-                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+                content=f"`{saved_id}` の提出が見つからなかった。キミのユーザー名を確認してくれ。"
             )
             return
 
@@ -248,7 +248,7 @@ class WAGroup(app_commands.Group):
 
         if not submissions:
             await interaction.edit_original_response(
-                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+                content=f"`{saved_id}` の提出が見つからなかった。キミのユーザー名を確認してくれ。"
             )
             return
 
