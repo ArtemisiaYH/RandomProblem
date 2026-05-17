@@ -78,19 +78,20 @@ def fetch_all_submissions(atcoder_id: str) -> list:
 class UserGroup(app_commands.Group):
     def __init__(self):
         super().__init__(name="user", description="AtCoder関連コマンド")
+        self.add_command(WAGroup())
 
     async def get_saved_id(self, interaction: discord.Interaction) -> str | None:
         """紐づけ済みIDを取得、未登録なら通知してNoneを返す"""
         saved_id = get_atcoder_id(str(interaction.user.id))
         if not saved_id:
             await interaction.response.send_message(
-                "先に `/user ac お前のAtCoderユーザー名` で登録してくれ。"
+                "先に `/user register お前のAtCoderユーザー名` で登録してくれ。"
             )
         return saved_id
 
-    @app_commands.command(name="ac", description="AtCoderアカウントを紐づける")
+    @app_commands.command(name="register", description="AtCoderアカウントを紐づける")
     @app_commands.describe(atcoder_id="AtCoderのユーザー名（初回or変更時のみ）")
-    async def ac_command(self, interaction: discord.Interaction, atcoder_id: str = None):
+    async def reg_command(self, interaction: discord.Interaction, atcoder_id: str = None):
         discord_id = str(interaction.user.id)
         saved_id = get_atcoder_id(discord_id)
 
@@ -109,8 +110,45 @@ class UserGroup(app_commands.Group):
                 "初回は `/user ac お前のAtCoderユーザー名` で登録してくれ。"
             )
 
-    @app_commands.command(name="problem", description="AC済み問題一覧と総数を表示")#
+#提出した問題全て
+    @app_commands.command(name="problem", description="全問題を表示")
     async def problem_command(self, interaction: discord.Interaction):
+        saved_id = await self.get_saved_id(interaction)
+        if not saved_id:
+            return
+
+        await interaction.response.send_message(f"`{saved_id}` の全問題を取得中...")
+
+        loop = asyncio.get_event_loop()
+        submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
+
+        if not submissions:
+            await interaction.edit_original_response(
+                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+            )
+            return
+
+        problems = sorted({s["problem_id"] for s in submissions})
+        total = len(problems)
+        preview_text = "\n".join(f"- {p}" for p in problems)
+
+        embed = discord.Embed(
+            title=f"{saved_id} の提出した問題",
+            color=0x00cc66,
+            timestamp=datetime.utcnow()
+        )
+        embed.add_field(name="提出済み問題の総数", value=f"**{total}** 問", inline=False)
+        embed.add_field(
+            name="問題一覧",
+            value=f"```\n{preview_text}\n```",
+            inline=False
+        )
+        embed.set_footer(text="AtCoder Problems API (kenkoooo)")
+
+        await interaction.edit_original_response(content=None, embed=embed)
+
+    @app_commands.command(name="ac", description="AC数を表示")
+    async def ac_command(self, interaction: discord.Interaction):
         saved_id = await self.get_saved_id(interaction)
         if not saved_id:
             return
@@ -145,13 +183,29 @@ class UserGroup(app_commands.Group):
 
         await interaction.edit_original_response(content=None, embed=embed)
 
-    @app_commands.command(name="wa", description="WA数を表示")
-    async def wa_command(self, interaction: discord.Interaction):
+class WAGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="wa", description="WAを表示する")
+
+class WAGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="wa", description="WAを表示する")
+
+    async def get_saved_id(self, interaction: discord.Interaction) -> str | None:
+        saved_id = get_atcoder_id(str(interaction.user.id))
+        if not saved_id:
+            await interaction.response.send_message(
+                "先に `/user register お前のAtCoderユーザー名` で登録してくれ。"
+            )
+        return saved_id
+
+    @app_commands.command(name="all", description="今までWAを取った問題を表示する")
+    async def wa_all_command(self, interaction: discord.Interaction):
         saved_id = await self.get_saved_id(interaction)
         if not saved_id:
             return
 
-        await interaction.response.send_message(f"`{saved_id}` のWA数を取得中...")
+        await interaction.response.send_message(f"`{saved_id}` のWAを取った問題を取得中...")
 
         loop = asyncio.get_event_loop()
         submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
@@ -162,17 +216,62 @@ class UserGroup(app_commands.Group):
             )
             return
 
-        wa_count = sum(1 for s in submissions if s["result"] == "WA")
+        wa_problems = sorted({s["problem_id"] for s in submissions if s["result"] == "WA"})
+        total = len(wa_problems)
+        preview_text = "\n".join(f"- {p}" for p in wa_problems)
 
         embed = discord.Embed(
-            title=f"{saved_id} のWA数",
-            color=0xff4444,
+            title=f"{saved_id} のWAを取った問題",
+            color=0x00cc66,
             timestamp=datetime.utcnow()
         )
-        embed.add_field(name="WA総数", value=f"**{wa_count}** 回", inline=False)
+        embed.add_field(name="WAを取った問題数", value=f"**{total}** 問", inline=False)
+        embed.add_field(
+            name="問題一覧",
+            value=f"```\n{preview_text}\n```",
+            inline=False
+        )
         embed.set_footer(text="AtCoder Problems API (kenkoooo)")
 
         await interaction.edit_original_response(content=None, embed=embed)
+
+    @app_commands.command(name="xac", description="WAを取ってまだACを取っていない問題を表示")
+    async def wa_xac_command(self, interaction: discord.Interaction):
+        saved_id = await self.get_saved_id(interaction)
+        if not saved_id:
+            return
+
+        await interaction.response.send_message(f"`{saved_id}` のWAを取った問題を取得中...")
+
+        loop = asyncio.get_event_loop()
+        submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
+
+        if not submissions:
+            await interaction.edit_original_response(
+                content=f"`{saved_id}` の提出が見つからなかった。ユーザー名を確認しろ。"
+            )
+            return
+
+        ac_problems = {s["problem_id"] for s in submissions if s["result"] == "AC"}
+        wa_problems = sorted({s["problem_id"] for s in submissions if s["result"] == "WA"} - ac_problems)
+        total = len(wa_problems)
+        preview_text = "\n".join(f"- {p}" for p in wa_problems)
+
+        embed = discord.Embed(
+            title=f"{saved_id} のWAを取った問題",
+            color=0x00cc66,
+            timestamp=datetime.utcnow()
+        )
+        embed.add_field(name="WAを取った問題数", value=f"**{total}** 問", inline=False)
+        embed.add_field(
+            name="問題一覧",
+            value=f"```\n{preview_text}\n```",
+            inline=False
+        )
+        embed.set_footer(text="AtCoder Problems API (kenkoooo)")
+
+        await interaction.edit_original_response(content=None, embed=embed)
+
 
 # ===========================
 # Cog本体
