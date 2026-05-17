@@ -8,6 +8,7 @@ import json
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+SERVER = os.getenv("SERVER_ID")
 PREFIX = '!'
 
 intents = discord.Intents.default()
@@ -20,6 +21,8 @@ async def on_ready():
     await bot.load_extension("cogs.problem") # /problem
     await bot.load_extension("cogs.user") # /user
     await bot.tree.sync()
+    guild = discord.Object(id=SERVER)
+    await bot.tree.sync(guild=guild)
     print(f'Logged in as {bot.user.name}')
     print(f'登録済みコマンド: {[c.name for c in bot.tree.get_commands()]}')
 
