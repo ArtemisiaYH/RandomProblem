@@ -9,8 +9,33 @@ import sqlite3
 import asyncio
 from datetime import datetime
 import requests
+import os
 
 DB_PATH = "users.db"
+
+# 色とレーティング範囲の対応
+COLOR_RANGE = {
+    "grey":   (0,    800),
+    "brown":  (800,  1200),
+    "green":  (1200, 1600),
+    "cyan":   (1600, 2000),
+    "blue":   (2000, 2400),
+    "yellow": (2400, 2800),
+    "orange": (2800, 3200),
+    "red":    (3200, 10000),
+}
+
+# 色コードの対応
+COLOR_HEX = {
+    "grey":   0x808080,
+    "brown":  0x804000,
+    "green":  0x008000,
+    "cyan":   0x00c0c0,
+    "blue":   0x0000ff,
+    "yellow": 0xc0c000,
+    "orange": 0xff8000,
+    "red":    0xff0000,
+}
 
 # ===========================
 # DB
@@ -74,11 +99,14 @@ class ProblemGroup(app_commands.Group):
     def __init__(self):
         super().__init__(name="problem", description="問題関連コマンド")
 
-        with open("aa.json", "r", encoding="utf-8") as f:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        with open(os.path.join(BASE_DIR, "..", "aa.json"), "r", encoding="utf-8") as f:
             data = json.load(f)
         self.aa_list = data["aa"]
 
     PROBLEMS_API = "https://kenkoooo.com/atcoder/resources/problems.json"
+    DIFFICULTY_API = "https://kenkoooo.com/atcoder/resources/problem-models.json"
 
     async def get_saved_id(self, interaction: discord.Interaction) -> str | None:
         """紐づけ済みIDを取得、未登録なら通知してNoneを返す"""
@@ -95,9 +123,24 @@ class ProblemGroup(app_commands.Group):
             async with session.get(self.PROBLEMS_API) as resp:
                 return await resp.json()
 
+    async def fetch_difficulty(self) -> dict:
+        """難易度データを取得する（problem_id -> difficulty）"""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.DIFFICULTY_API) as resp:
+                return await resp.json()
+
     def build_problem_url(self, problem: dict) -> str:
         """問題のURLを組み立てる"""
         return f"https://atcoder.jp/contests/{problem['contest_id']}/tasks/{problem['id']}"
+
+    async def get_ac_ids(self, discord_id: str) -> set:
+        """AC済み問題IDのセットを返す"""
+        saved_id = get_atcoder_id(discord_id)
+        if not saved_id:
+            return set()
+        loop = asyncio.get_event_loop()
+        submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
+        return {s["problem_id"] for s in submissions if s["result"] == "AC"}
 
     # ===========================
     # /problem random
@@ -149,13 +192,10 @@ class ProblemGroup(app_commands.Group):
             problems = [p for p in problems if p["problem_index"] in (index.value, old_index)]
 
         # AC済み問題を除外する
+        ac_ids = set()
         if exclude_ac:
-            saved_id = get_atcoder_id(str(interaction.user.id))
-            if saved_id:
-                loop = asyncio.get_event_loop()
-                submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
-                ac_ids = {s["problem_id"] for s in submissions if s["result"] == "AC"}
-                problems = [p for p in problems if p["id"] not in ac_ids]
+            ac_ids = await self.get_ac_ids(str(interaction.user.id))
+            problems = [p for p in problems if p["id"] not in ac_ids]
 
         if not problems:
             await interaction.followup.send("該当する問題が見つからなかった")
@@ -165,18 +205,125 @@ class ProblemGroup(app_commands.Group):
         url = self.build_problem_url(problem)
 
         # AC済みかチェックして表示する
-        saved_id = get_atcoder_id(str(interaction.user.id))
         ac_status = ""
-        if saved_id and not exclude_ac:
-            loop = asyncio.get_event_loop()
-            submissions = await loop.run_in_executor(None, fetch_all_submissions, saved_id)
-            ac_ids = {s["problem_id"] for s in submissions if s["result"] == "AC"}
+        if not exclude_ac:
+            if not ac_ids:
+                ac_ids = await self.get_ac_ids(str(interaction.user.id))
             if problem["id"] in ac_ids:
                 ac_status = " ✅ AC済み"
 
-        await interaction.followup.send(
-            f"解けるかな {random.choice(self.aa_list)}: **{problem['title']}**{ac_status}\n{url}"
+        embed = discord.Embed(
+            title=problem["title"],
+            url=url,
+            color=0x00cc66 if ac_status else 0x888888,
+            timestamp=datetime.utcnow()
         )
+        embed.add_field(name="コンテスト", value=problem["contest_id"].upper(), inline=True)
+        embed.add_field(name="問題", value=problem["problem_index"], inline=True)
+        if ac_status:
+            embed.add_field(name="状態", value="✅ AC済み", inline=True)
+        embed.set_footer(text="AtCoder Problems API (kenkoooo)")
+
+        await interaction.followup.send(
+            f"解けるかな {random.choice(self.aa_list)}",
+            embed=embed
+        )
+
+    # ===========================
+    # /problem color
+    # ===========================
+    @app_commands.command(name="color", description="色難易度でランダム出題")
+    @app_commands.describe(
+        color="難易度の色",
+        contest="コンテスト種別 (省略で全体)",
+        exclude_ac="ACした問題を除外するか"
+    )
+    @app_commands.choices(
+        color=[
+            app_commands.Choice(name="Grey",   value="grey"),
+            app_commands.Choice(name="Brown",  value="brown"),
+            app_commands.Choice(name="Green",  value="green"),
+            app_commands.Choice(name="Cyan",   value="cyan"),
+            app_commands.Choice(name="Blue",   value="blue"),
+            app_commands.Choice(name="Yellow", value="yellow"),
+            app_commands.Choice(name="Orange", value="orange"),
+            app_commands.Choice(name="Red",    value="red"),
+        ],
+        contest=[
+            app_commands.Choice(name="全体", value="all"),
+            app_commands.Choice(name="ABC", value="abc"),
+            app_commands.Choice(name="ARC", value="arc"),
+            app_commands.Choice(name="AGC", value="agc"),
+        ],
+    )
+    async def color_command(
+        self,
+        interaction: discord.Interaction,
+        color: str,
+        contest: Optional[app_commands.Choice[str]] = None,
+        exclude_ac: bool = False,
+    ):
+        await interaction.response.defer()
+
+        problems, difficulty = await asyncio.gather(
+            self.fetch_problems(),
+            self.fetch_difficulty()
+        )
+
+        # コンテスト種別で絞り込む
+        contest_prefix = None if (contest is None or contest.value == "all") else contest.value
+        if contest_prefix:
+            problems = [p for p in problems if p["contest_id"].startswith(contest_prefix)]
+
+        # 色に対応するレーティング範囲で絞り込む
+        low, high = COLOR_RANGE[color]
+        problems = [
+            p for p in problems
+            if p["id"] in difficulty
+            and difficulty[p["id"]].get("difficulty") is not None
+            and low <= difficulty[p["id"]]["difficulty"] < high
+        ]
+
+        # AC済み問題を除外する
+        ac_ids = set()
+        if exclude_ac:
+            ac_ids = await self.get_ac_ids(str(interaction.user.id))
+            problems = [p for p in problems if p["id"] not in ac_ids]
+
+        if not problems:
+            await interaction.followup.send("該当する問題が見つからなかった")
+            return
+
+        problem = random.choice(problems)
+        url = self.build_problem_url(problem)
+
+        # AC済みかチェックして表示する
+        ac_status = ""
+        if not exclude_ac:
+            if not ac_ids:
+                ac_ids = await self.get_ac_ids(str(interaction.user.id))
+            if problem["id"] in ac_ids:
+                ac_status = " ✅ AC済み"
+
+        diff = int(difficulty[problem["id"]]["difficulty"])
+        embed = discord.Embed(
+            title=problem["title"],
+            url=url,
+            color=COLOR_HEX[color] if ac_status else COLOR_HEX[color],
+            timestamp=datetime.utcnow()
+        )
+        embed.add_field(name="コンテスト", value=problem["contest_id"].upper(), inline=True)
+        embed.add_field(name="問題", value=problem["problem_index"], inline=True)
+        embed.add_field(name="Difficulty", value=str(diff), inline=True)
+        if ac_status:
+            embed.add_field(name="状態", value="✅ AC済み", inline=True)
+        embed.set_footer(text="AtCoder Problems API (kenkoooo)")
+
+        await interaction.followup.send(
+            f"解けるかな {random.choice(self.aa_list)}",
+            embed=embed
+        )
+
 
     # ===========================
     # /problem select
@@ -212,7 +359,6 @@ class ProblemGroup(app_commands.Group):
         embed.add_field(name="URL", value=problem_url, inline=False)
 
         if not target:
-            # 提出なし
             embed.add_field(name="提出結果", value="まだ提出してない", inline=False)
         else:
             results = [s["result"] for s in target]

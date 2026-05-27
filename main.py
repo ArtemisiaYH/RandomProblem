@@ -13,6 +13,7 @@ PREFIX = '!'
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True  
 
 bot = commands.Bot(command_prefix=PREFIX,intents=intents)
 
@@ -20,6 +21,8 @@ bot = commands.Bot(command_prefix=PREFIX,intents=intents)
 async def on_ready():
     await bot.load_extension("cogs.problem") # /problem
     await bot.load_extension("cogs.user") # /user
+    await bot.load_extension("cogs.ranking")
+    await bot.load_extension("cogs.streak")
     await bot.tree.sync()
     guild = discord.Object(id=SERVER)
     await bot.tree.sync(guild=guild)
